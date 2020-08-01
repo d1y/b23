@@ -5,6 +5,8 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -34,4 +36,21 @@ func ContentLength2MB(n int64) string {
 	}
 	var r = fmt.Sprintf("%vmb", f)
 	return r
+}
+
+// CheckFileIsExists 判断一个文件是否存在(或者文件夹)
+func CheckFileIsExists(cmd string) bool {
+	if _, err := os.Stat(cmd); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+// IsCommandAvailable 判断一个命令是否存在
+func IsCommandAvailable(name string) bool {
+	cmd := exec.Command("command", "-v", name)
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+	return true
 }

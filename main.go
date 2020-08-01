@@ -5,25 +5,36 @@ import (
 	"os"
 
 	"github.com/d1y/b23/api"
+	"github.com/d1y/b23/cli"
 	"github.com/fatih/color"
 )
+
+func easy(id string) {
+	info, err := api.GetB23VideoPagelist(id)
+	if err != nil {
+		color.Cyan("获取视频分p失败")
+		os.Exit(1)
+	}
+	videoInfo, err := api.GetB23VideoInfo(id)
+	if err != nil {
+		color.Red("获取视频信息失败")
+		os.Exit(1)
+	}
+	var title = videoInfo.Data.Title
+	var firstCid = info.Data[0].Cid
+	var cid = fmt.Sprintf("%v", firstCid)
+	var urls = api.EasyGetB23VideoURL(id, cid)
+	if len(urls) >= 1 {
+		api.DownloadFileAndToMp3(urls[0], title)
+	}
+}
 
 func main() {
 	var args = os.Args
 	if len(args) < 2 {
-		color.Red("请传递参数")
+		color.Red(cli.Help())
 		os.Exit(0)
 	} else {
-		var id = args[1]
-		info, err := api.GetB23VideoPagelist(id)
-		if err != nil {
-			color.Cyan("请求错误")
-		}
-		var firstCid = info.Data[0].Cid
-		var cid = fmt.Sprintf("%v", firstCid)
-		var urls = api.EasyGetB23VideoURL(id, cid)
-		if len(urls) >= 1 {
-			api.DownloadFileAndToMp3(urls[0])
-		}
+		easy(args[1])
 	}
 }

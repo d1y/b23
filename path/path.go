@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/user"
 	"path"
+
+	"github.com/d1y/b23/utils"
 )
 
 // GetHomePath 获取用户主目录
@@ -23,6 +25,27 @@ func GetHomePath() string {
 func CreateDesktopFile(filename string) string {
 	var x = path.Join(DownloadDir, filename)
 	return x
+}
+
+// GetCurrentPath 获取当前路径..
+func GetCurrentPath() string {
+	curr, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return curr
+}
+
+// GetLocalWrapperFfmpegPath 获取懒人包的 `ffmpeg`
+// 主要会在 `windows` 平台打包一个懒人包, 自带了 `ffmpeg`
+func GetLocalWrapperFfmpegPath() string {
+	var curr = GetCurrentPath()
+	var ffmpeg = path.Join(curr, "./lib/ffmpeg/bin/ffmpeg.exe")
+	var fffmpegExist = utils.CheckFileIsExists(ffmpeg)
+	if fffmpegExist {
+		return ffmpeg
+	}
+	return ""
 }
 
 // HomeDir 主目录

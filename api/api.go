@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os/exec"
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/d1y/b23/config"
+	"github.com/d1y/b23/ffmpeg"
 	"github.com/d1y/b23/path"
 	"github.com/d1y/b23/utils"
 	cmdColor "github.com/fatih/color"
@@ -49,6 +50,24 @@ func GetB23VideoPagelist(vid string) (BilibiliVideoPagelistJSON, error) {
 	hd := createMiddlewareHeader(vid)
 	resp, err := req.Get(config.VideoPagelist, qs, hd)
 	var respBody BilibiliVideoPagelistJSON
+	if err != nil {
+		return respBody, errors.New("获取请求失败")
+	}
+	var r = resp.Response().Body
+	body, err := ioutil.ReadAll(r)
+	json.Unmarshal(body, &respBody)
+	return respBody, nil
+}
+
+// GetB23VideoInfo 获取视频信息
+func GetB23VideoInfo(id string) (BilibiliVideoInfoJSON, error) {
+	var key = genIDKey(id)
+	qs := req.Param{
+		key: id,
+	}
+	hd := createMiddlewareHeader(id)
+	resp, err := req.Get(config.VideoInfo, qs, hd)
+	var respBody BilibiliVideoInfoJSON
 	if err != nil {
 		return respBody, errors.New("获取请求失败")
 	}
@@ -105,12 +124,12 @@ func check(e error) {
 }
 
 // DownloadFileAndToMp3 下载文件然后转为 `mp3`
-func DownloadFileAndToMp3(url string) {
+func DownloadFileAndToMp3(url string, output string) {
 	f, err := ioutil.TempFile("", "b23")
 	if err != nil {
 		panic("create temp file is error")
 	}
-	// defer os.Remove(f.Name())
+	defer os.Remove(f.Name())
 	var Fpath = f.Name()
 	var tempFilePrint = fmt.Sprintf("临时路径: %v", Fpath)
 	cmdColor.Cyan(tempFilePrint)
@@ -129,17 +148,12 @@ func DownloadFileAndToMp3(url string) {
 	cmdColor.Yellow("下载完成")
 	s.Start()
 	s.Prefix = "正在转换格式"
-	var tempFilePath = path.CreateDesktopFile("result.mp3")
-	fmt.Println("tempFilePath", tempFilePath)
-	var clang = exec.Command("ffmpeg", "-i", Fpath, tempFilePath)
-	err = clang.Run()
-	if err != nil {
-		panic("执行错误, `ffmpeg` 不存在或者其他命令")
+	var outputFilePath = path.CreateDesktopFile(output)
+	var outputFlag = ffmpeg.ConvertFormat2mp3(Fpath, outputFilePath)
+	if !outputFlag {
+		panic("转换失败, 可能是写入的文件可能已经存在!!")
 	}
 	s.Stop()
-	var resultMessage = fmt.Sprintf("转换成功: %v", tempFilePath)
+	var resultMessage = fmt.Sprintf("转换成功: %v", outputFilePath)
 	cmdColor.Green(resultMessage)
-	if err != nil {
-		fmt.Println("error: ", err)
-	}
 }
