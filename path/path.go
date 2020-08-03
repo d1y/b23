@@ -40,7 +40,7 @@ func GetCurrentPath() string {
 // 主要会在 `windows` 平台打包一个懒人包, 自带了 `ffmpeg`
 func GetLocalWrapperFfmpegPath() string {
 	var curr = GetCurrentPath()
-	var ffmpeg = path.Join(curr, "./lib/ffmpeg/bin/ffmpeg.exe")
+	var ffmpeg = path.Join(curr, "./lib/ffmpeg.exe")
 	var fffmpegExist = utils.CheckFileIsExists(ffmpeg)
 	if fffmpegExist {
 		return ffmpeg
