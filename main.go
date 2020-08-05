@@ -4,12 +4,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/d1y/b23/utils"
+
 	"github.com/d1y/b23/api"
 	"github.com/d1y/b23/cli"
 	"github.com/fatih/color"
 )
 
 func easy(id string) {
+	if utils.IsValidURL(id) {
+		ctx, idErr := utils.GetB23ID(id)
+		if idErr != nil {
+			panic(idErr)
+		}
+		id = ctx
+	}
 	info, err := api.GetB23VideoPagelist(id)
 	if err != nil {
 		color.Cyan("获取视频分p失败")

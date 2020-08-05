@@ -95,5 +95,5 @@ func windowsInstallFfmpeg() error {
 }
 
 func init() {
-	windowsInstallFfmpeg()
+	// windowsInstallFfmpeg()
 }

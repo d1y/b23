@@ -16,3 +16,10 @@ var VideoPagelist = fmt.Sprintf("%v%v", baseAPI, "x/player/pagelist")
 // VideoPlayURL 获取视频流URL
 // https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/video/videostream_url.md
 var VideoPlayURL = fmt.Sprintf("%v%v", baseAPI, "x/player/playurl")
+
+// B23Hosts b站镜像域名站点
+var B23Hosts = []string{
+	"bilibili.com",
+	"www.bilibili.com",
+	"b23.tv",
+}

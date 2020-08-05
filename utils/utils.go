@@ -5,13 +5,17 @@ package utils
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/d1y/b23/config"
 )
 
 // CheckBID 判断是不是 `bilibili` id
@@ -55,6 +59,45 @@ func IsCommandAvailable(name string) bool {
 	if err := cmd.Run(); err != nil {
 		return false
 	}
+	return true
+}
+
+// GetB23ID 获取 `b23` ID
+func GetB23ID(str string) (string, error) {
+	URL, e := url.Parse(str)
+	if e != nil {
+		return "", errors.New("解析失败")
+	}
+	var host = URL.Host
+	var isArrow = false
+	for _, item := range config.B23Hosts {
+		if item == host {
+			isArrow = true
+		}
+	}
+	if !isArrow {
+		return "", errors.New("域名错误")
+	}
+	var b = URL.Path
+	var videoWord = "/video/"
+	if strings.Contains(b, videoWord) {
+		b = b[len(videoWord):]
+	}
+	return b, nil
+}
+
+// IsValidURL 判断是否是个 `url`
+func IsValidURL(toTest string) bool {
+	_, err := url.ParseRequestURI(toTest)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(toTest)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
 	return true
 }
 
